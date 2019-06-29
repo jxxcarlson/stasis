@@ -5201,10 +5201,47 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
+var author$project$Main$CellGrid = function (a) {
+	return {$: 'CellGrid', a: a};
+};
 var author$project$Main$ChangeTheWorld = {$: 'ChangeTheWorld'};
 var author$project$Main$StageResource = function (a) {
 	return {$: 'StageResource', a: a};
 };
+var author$project$Main$gridDisplayWidth = 450.0;
+var author$project$Main$gridWidth = 6;
+var avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
+	});
+var avh4$elm_color$Color$rgb = F3(
+	function (r, g, b) {
+		return A4(avh4$elm_color$Color$RgbaSpace, r, g, b, 1.0);
+	});
+var author$project$Main$cellrenderer = {
+	cellColorizer: function (state) {
+		if (state.$ === 'Occupied') {
+			switch (state.a.$) {
+				case 'Crop':
+					var _n1 = state.a;
+					return A3(avh4$elm_color$Color$rgb, 1, 1, 0);
+				case 'City':
+					var _n2 = state.a;
+					return A3(avh4$elm_color$Color$rgb, 0, 0, 1);
+				default:
+					var _n3 = state.a;
+					return A3(avh4$elm_color$Color$rgb, 0, 1, 0);
+			}
+		} else {
+			return A3(avh4$elm_color$Color$rgb, 0, 0, 0);
+		}
+	},
+	cellSize: author$project$Main$gridDisplayWidth / author$project$Main$gridWidth,
+	defaultColor: A3(avh4$elm_color$Color$rgb, 0, 0, 0),
+	gridLineColor: A3(avh4$elm_color$Color$rgb, 0, 0, 1),
+	gridLineWidth: 0.5
+};
+var author$project$Main$ChooseCity = {$: 'ChooseCity'};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -5223,8 +5260,120 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$button = _VirtualDom_node('button');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var author$project$Main$chooseCityButton = function (model) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$Main$ChooseCity)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('City')
+			]));
+};
+var author$project$Main$ChooseCrop = {$: 'ChooseCrop'};
+var author$project$Main$chooseCropButton = function (model) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$Main$ChooseCrop)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('City')
+			]));
+};
+var author$project$Main$ChooseNature = {$: 'ChooseNature'};
+var author$project$Main$chooseNatureButton = function (model) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$Main$ChooseNature)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('Nature')
+			]));
+};
+var author$project$Main$ChooseUnoccupied = {$: 'ChooseUnoccupied'};
+var author$project$Main$chooseUnoccupiedButton = function (model) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$Main$ChooseUnoccupied)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('Unoccupied')
+			]));
+};
+var elm$html$Html$div = _VirtualDom_node('div');
+var author$project$Main$palette = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Main$chooseCityButton(model),
+						elm$html$Html$text(
+						elm$core$String$fromInt(model.stagedWorldChange.cities))
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Main$chooseCropButton(model),
+						elm$html$Html$text(
+						elm$core$String$fromInt(model.stagedWorldChange.crops))
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Main$chooseNatureButton(model),
+						elm$html$Html$text(
+						elm$core$String$fromInt(model.stagedWorldChange.nature))
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Main$chooseUnoccupiedButton(model)
+					]))
+			]));
+};
 var author$project$Main$turnView = function (world) {
 	return elm$html$Html$text(
 		'Turn number: ' + elm$core$String$fromInt(
@@ -5401,8 +5550,6 @@ var author$project$World$resourceAvailable = F3(
 			A2(author$project$World$productivityNeeded, stagedChange, resource)) > -1) && A3(author$project$World$enoughCropAvailable, resource, stagedChange, world);
 	});
 var elm$core$Basics$not = _Basics_not;
-var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -5414,23 +5561,6 @@ var elm$html$Html$Attributes$boolProperty = F2(
 var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'click',
-		elm$json$Json$Decode$succeed(msg));
-};
 var author$project$World$resourceView = F3(
 	function (resourceMsg, stagedWorldChange, world) {
 		return A2(
@@ -5506,6 +5636,402 @@ var author$project$World$view = F2(
 	});
 var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
+var elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
+	return _VirtualDom_nodeNS(
+		_VirtualDom_noScript(tag));
+};
+var elm_community$typed_svg$TypedSvg$Core$node = elm$virtual_dom$VirtualDom$nodeNS('http://www.w3.org/2000/svg');
+var elm_community$typed_svg$TypedSvg$svg = elm_community$typed_svg$TypedSvg$Core$node('svg');
+var elm$core$String$fromFloat = _String_fromNumber;
+var elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var elm_community$typed_svg$TypedSvg$Core$attribute = elm$virtual_dom$VirtualDom$attribute;
+var elm_community$typed_svg$TypedSvg$Attributes$viewBox = F4(
+	function (minX, minY, vWidth, vHeight) {
+		return A2(
+			elm_community$typed_svg$TypedSvg$Core$attribute,
+			'viewBox',
+			A2(
+				elm$core$String$join,
+				' ',
+				A2(
+					elm$core$List$map,
+					elm$core$String$fromFloat,
+					_List_fromArray(
+						[minX, minY, vWidth, vHeight]))));
+	});
+var elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString = function (length) {
+	switch (length.$) {
+		case 'Cm':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'cm';
+		case 'Em':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'em';
+		case 'Ex':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'ex';
+		case 'In':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'in';
+		case 'Mm':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'mm';
+		case 'Num':
+			var x = length.a;
+			return elm$core$String$fromFloat(x);
+		case 'Pc':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'pc';
+		case 'Percent':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + '%';
+		case 'Pt':
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'pt';
+		default:
+			var x = length.a;
+			return elm$core$String$fromFloat(x) + 'px';
+	}
+};
+var elm_community$typed_svg$TypedSvg$Attributes$height = function (length) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'height',
+		elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var elm_community$typed_svg$TypedSvg$Types$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var elm_community$typed_svg$TypedSvg$Types$px = elm_community$typed_svg$TypedSvg$Types$Px;
+var elm_community$typed_svg$TypedSvg$Attributes$InPx$height = function (value) {
+	return elm_community$typed_svg$TypedSvg$Attributes$height(
+		elm_community$typed_svg$TypedSvg$Types$px(value));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$width = function (length) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'width',
+		elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$InPx$width = function (value) {
+	return elm_community$typed_svg$TypedSvg$Attributes$width(
+		elm_community$typed_svg$TypedSvg$Types$px(value));
+};
+var elm_community$typed_svg$TypedSvg$g = elm_community$typed_svg$TypedSvg$Core$node('g');
+var elm$core$Basics$modBy = _Basics_modBy;
+var jxxcarlson$elm_cell_grid$CellGrid$matrixIndex = F2(
+	function (_n0, n) {
+		var nRows = _n0.a;
+		var nCols = _n0.b;
+		return _Utils_Tuple2(
+			(n / nCols) | 0,
+			A2(elm$core$Basics$modBy, nRows, n));
+	});
+var jxxcarlson$elm_cell_grid$CellGrid$matrixIndices = function (_n0) {
+	var _n1 = _n0.a;
+	var nRows = _n1.a;
+	var nCols = _n1.b;
+	var n = nRows * nCols;
+	return A2(
+		elm$core$List$map,
+		jxxcarlson$elm_cell_grid$CellGrid$matrixIndex(
+			_Utils_Tuple2(nRows, nCols)),
+		A2(elm$core$List$range, 0, n - 1));
+};
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm_community$typed_svg$TypedSvg$rect = elm_community$typed_svg$TypedSvg$Core$node('rect');
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Basics$round = _Basics_round;
+var elm$core$String$concat = function (strings) {
+	return A2(elm$core$String$join, '', strings);
+};
+var avh4$elm_color$Color$toCssString = function (_n0) {
+	var r = _n0.a;
+	var g = _n0.b;
+	var b = _n0.c;
+	var a = _n0.d;
+	var roundTo = function (x) {
+		return elm$core$Basics$round(x * 1000) / 1000;
+	};
+	var pct = function (x) {
+		return elm$core$Basics$round(x * 10000) / 100;
+	};
+	return elm$core$String$concat(
+		_List_fromArray(
+			[
+				'rgba(',
+				elm$core$String$fromFloat(
+				pct(r)),
+				'%,',
+				elm$core$String$fromFloat(
+				pct(g)),
+				'%,',
+				elm$core$String$fromFloat(
+				pct(b)),
+				'%,',
+				elm$core$String$fromFloat(
+				roundTo(a)),
+				')'
+			]));
+};
+var elm_community$typed_svg$TypedSvg$TypesToStrings$fillToString = function (fill) {
+	if (fill.$ === 'Fill') {
+		var color = fill.a;
+		return avh4$elm_color$Color$toCssString(color);
+	} else {
+		return 'none';
+	}
+};
+var elm_community$typed_svg$TypedSvg$Attributes$fill = A2(
+	elm$core$Basics$composeL,
+	elm_community$typed_svg$TypedSvg$Core$attribute('fill'),
+	elm_community$typed_svg$TypedSvg$TypesToStrings$fillToString);
+var elm_community$typed_svg$TypedSvg$Attributes$stroke = function (col) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'stroke',
+		avh4$elm_color$Color$toCssString(col));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$strokeWidth = function (length) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'stroke-width',
+		elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$InPx$strokeWidth = function (value) {
+	return elm_community$typed_svg$TypedSvg$Attributes$strokeWidth(
+		elm_community$typed_svg$TypedSvg$Types$px(value));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$x = function (length) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'x',
+		elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$InPx$x = function (value) {
+	return elm_community$typed_svg$TypedSvg$Attributes$x(
+		elm_community$typed_svg$TypedSvg$Types$px(value));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$y = function (length) {
+	return A2(
+		elm_community$typed_svg$TypedSvg$Core$attribute,
+		'y',
+		elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var elm_community$typed_svg$TypedSvg$Attributes$InPx$y = function (value) {
+	return elm_community$typed_svg$TypedSvg$Attributes$y(
+		elm_community$typed_svg$TypedSvg$Types$px(value));
+};
+var elm_community$typed_svg$TypedSvg$Types$Fill = function (a) {
+	return {$: 'Fill', a: a};
+};
+var jxxcarlson$elm_cell_grid$CellGrid$Render$MouseClick = F2(
+	function (a, b) {
+		return {$: 'MouseClick', a: a, b: b};
+	});
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions = {preventDefault: true, stopPropagation: false};
+var elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var elm$html$Html$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var elm$json$Json$Decode$map6 = _Json_map6;
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event = F6(
+	function (keys, button, clientPos, offsetPos, pagePos, screenPos) {
+		return {button: button, clientPos: clientPos, keys: keys, offsetPos: offsetPos, pagePos: pagePos, screenPos: screenPos};
+	});
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$BackButton = {$: 'BackButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ErrorButton = {$: 'ErrorButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ForwardButton = {$: 'ForwardButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MainButton = {$: 'MainButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MiddleButton = {$: 'MiddleButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$SecondButton = {$: 'SecondButton'};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonFromId = function (id) {
+	switch (id) {
+		case 0:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MainButton;
+		case 1:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MiddleButton;
+		case 2:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$SecondButton;
+		case 3:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$BackButton;
+		case 4:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ForwardButton;
+		default:
+			return mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ErrorButton;
+	}
+};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonDecoder = A2(
+	elm$json$Json$Decode$map,
+	mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonFromId,
+	A2(elm$json$Json$Decode$field, 'button', elm$json$Json$Decode$int));
+var elm$json$Json$Decode$float = _Json_decodeFloat;
+var mpizenberg$elm_pointer_events$Internal$Decode$clientPos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'clientX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'clientY', elm$json$Json$Decode$float));
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var elm$json$Json$Decode$map3 = _Json_map3;
+var mpizenberg$elm_pointer_events$Internal$Decode$Keys = F3(
+	function (alt, ctrl, shift) {
+		return {alt: alt, ctrl: ctrl, shift: shift};
+	});
+var mpizenberg$elm_pointer_events$Internal$Decode$keys = A4(
+	elm$json$Json$Decode$map3,
+	mpizenberg$elm_pointer_events$Internal$Decode$Keys,
+	A2(elm$json$Json$Decode$field, 'altKey', elm$json$Json$Decode$bool),
+	A2(elm$json$Json$Decode$field, 'ctrlKey', elm$json$Json$Decode$bool),
+	A2(elm$json$Json$Decode$field, 'shiftKey', elm$json$Json$Decode$bool));
+var mpizenberg$elm_pointer_events$Internal$Decode$offsetPos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'offsetX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'offsetY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Internal$Decode$pagePos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'pageX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'pageY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Internal$Decode$screenPos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'screenX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'screenY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder = A7(elm$json$Json$Decode$map6, mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event, mpizenberg$elm_pointer_events$Internal$Decode$keys, mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonDecoder, mpizenberg$elm_pointer_events$Internal$Decode$clientPos, mpizenberg$elm_pointer_events$Internal$Decode$offsetPos, mpizenberg$elm_pointer_events$Internal$Decode$pagePos, mpizenberg$elm_pointer_events$Internal$Decode$screenPos);
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions = F3(
+	function (event, options, tag) {
+		return A2(
+			elm$html$Html$Events$custom,
+			event,
+			A2(
+				elm$json$Json$Decode$map,
+				function (ev) {
+					return {
+						message: tag(ev),
+						preventDefault: options.preventDefault,
+						stopPropagation: options.stopPropagation
+					};
+				},
+				mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder));
+	});
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDown = A2(mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onWithOptions, 'mousedown', mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$defaultOptions);
+var jxxcarlson$elm_cell_grid$CellGrid$Render$renderCell = F3(
+	function (cr, cellGrid, _n0) {
+		var i = _n0.a;
+		var j = _n0.b;
+		var size = cr.cellSize;
+		var color = A2(
+			elm$core$Maybe$withDefault,
+			cr.defaultColor,
+			A2(
+				elm$core$Maybe$map,
+				cr.cellColorizer,
+				A2(
+					jxxcarlson$elm_cell_grid$CellGrid$cellAtMatrixIndex,
+					_Utils_Tuple2(i, j),
+					cellGrid)));
+		return A2(
+			elm_community$typed_svg$TypedSvg$rect,
+			_List_fromArray(
+				[
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$width(size),
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$height(size),
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$x(size * i),
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$y(size * j),
+					elm_community$typed_svg$TypedSvg$Attributes$fill(
+					elm_community$typed_svg$TypedSvg$Types$Fill(color)),
+					mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$onDown(
+					A2(
+						elm$core$Basics$composeR,
+						function ($) {
+							return $.clientPos;
+						},
+						jxxcarlson$elm_cell_grid$CellGrid$Render$MouseClick(
+							_Utils_Tuple2(i, j)))),
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$strokeWidth(cr.gridLineWidth),
+					elm_community$typed_svg$TypedSvg$Attributes$stroke(cr.gridLineColor)
+				]),
+			_List_Nil);
+	});
+var jxxcarlson$elm_cell_grid$CellGrid$Render$renderAsSvg = F2(
+	function (cr, cellGrid) {
+		return A2(
+			elm_community$typed_svg$TypedSvg$g,
+			_List_Nil,
+			A2(
+				elm$core$List$map,
+				A2(jxxcarlson$elm_cell_grid$CellGrid$Render$renderCell, cr, cellGrid),
+				jxxcarlson$elm_cell_grid$CellGrid$matrixIndices(cellGrid)));
+	});
+var jxxcarlson$elm_cell_grid$CellGrid$Render$renderAsHtml = F4(
+	function (width_, height_, cr, cellGrid) {
+		return A2(
+			elm_community$typed_svg$TypedSvg$svg,
+			_List_fromArray(
+				[
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$height(height_),
+					elm_community$typed_svg$TypedSvg$Attributes$InPx$width(width_),
+					A4(elm_community$typed_svg$TypedSvg$Attributes$viewBox, 0, 0, width_, height_)
+				]),
+			_List_fromArray(
+				[
+					A2(jxxcarlson$elm_cell_grid$CellGrid$Render$renderAsSvg, cr, cellGrid)
+				]));
+	});
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
@@ -5518,8 +6044,13 @@ var author$project$Main$view = function (model) {
 				author$project$Main$turnView(model.world),
 				A2(
 				elm$html$Html$map,
+				author$project$Main$CellGrid,
+				A4(jxxcarlson$elm_cell_grid$CellGrid$Render$renderAsHtml, author$project$Main$gridDisplayWidth, author$project$Main$gridDisplayWidth, author$project$Main$cellrenderer, model.cellGrid)),
+				A2(
+				elm$html$Html$map,
 				author$project$Main$StageResource,
 				A2(author$project$World$view, model.stagedWorldChange, model.world)),
+				author$project$Main$palette(model),
 				A2(
 				elm$html$Html$button,
 				_List_fromArray(

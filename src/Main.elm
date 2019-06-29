@@ -35,6 +35,14 @@ type alias Model =
     }
 
 
+gridDisplayWidth =
+    450.0
+
+
+gridWidth =
+    6
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { stagedWorldChange =
@@ -158,9 +166,16 @@ view model =
         [ Html.Attributes.style "font-size" "50px"
         ]
         [ turnView model.world
+        , CellGrid.Render.renderAsHtml
+            gridDisplayWidth
+            gridDisplayWidth
+            cellrenderer
+            model.cellGrid
+            |> Html.map CellGrid
         , model.world
             |> World.view model.stagedWorldChange
             |> Html.map StageResource
+        , palette model
         , Html.button
             [ Html.Events.onClick ChangeTheWorld
             , Html.Attributes.style "font-size" "40px"
@@ -178,6 +193,44 @@ turnView world =
 --
 -- Added by JC
 --
+
+
+palette : Model -> Html Msg
+palette model =
+    div []
+        [ div [] [ chooseCityButton model, text <| String.fromInt model.stagedWorldChange.cities ]
+        , div [] [ chooseCropButton model, text <| String.fromInt model.stagedWorldChange.crops ]
+        , div [] [ chooseNatureButton model, text <| String.fromInt model.stagedWorldChange.nature ]
+        , div [] [ chooseUnoccupiedButton model ]
+        ]
+
+
+chooseCityButton : Model -> Html Msg
+chooseCityButton model =
+    Html.button [ Html.Events.onClick ChooseCity ]
+        [ text "City" ]
+
+
+chooseCropButton : Model -> Html Msg
+chooseCropButton model =
+    Html.button [ Html.Events.onClick ChooseCrop ]
+        [ text "City" ]
+
+
+chooseNatureButton : Model -> Html Msg
+chooseNatureButton model =
+    Html.button [ Html.Events.onClick ChooseNature ]
+        [ text "Nature" ]
+
+
+chooseUnoccupiedButton : Model -> Html Msg
+chooseUnoccupiedButton model =
+    Html.button [ Html.Events.onClick ChooseUnoccupied ]
+        [ text "Unoccupied" ]
+
+
+paletButtonStyle r g b =
+    []
 
 
 updateWordChange : Maybe State -> State -> WorldChange -> WorldChange
@@ -209,3 +262,25 @@ updateWordChange maybeSelectedCell chosenState worldChange =
 
             Unoccupied ->
                 worldChange
+
+
+cellrenderer =
+    { cellSize = gridDisplayWidth / toFloat gridWidth
+    , cellColorizer =
+        \state ->
+            case state of
+                Occupied Crop ->
+                    Color.rgb 1 1 0
+
+                Occupied City ->
+                    Color.rgb 0 0 1
+
+                Occupied Nature ->
+                    Color.rgb 0 1 0
+
+                Unoccupied ->
+                    Color.rgb 0 0 0
+    , defaultColor = Color.rgb 0 0 0
+    , gridLineWidth = 0.5
+    , gridLineColor = Color.rgb 0 0 1
+    }
