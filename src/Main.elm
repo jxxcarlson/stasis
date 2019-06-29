@@ -1,12 +1,16 @@
 module Main exposing (main)
 
 import Browser
+import CellGrid exposing (CellGrid)
+import CellGrid.Render exposing (CellRenderer)
+import Color
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, string)
-import World exposing (World, WorldChange)
+import World exposing (Resource(..), World, WorldChange)
+import WorldGrid exposing (State(..))
 
 
 type alias Flags =
@@ -26,6 +30,8 @@ main =
 type alias Model =
     { stagedWorldChange : WorldChange
     , world : World
+    , cellGrid : CellGrid State
+    , selectedState : State
     }
 
 
@@ -38,6 +44,8 @@ init _ =
             }
       , world =
             World.init
+      , cellGrid = CellGrid.empty
+      , selectedState = Unoccupied
       }
     , Cmd.none
     )
@@ -45,7 +53,12 @@ init _ =
 
 type Msg
     = ChangeTheWorld
-    | StageResource World.AddResource
+    | StageResource World.Resource
+    | CellGrid CellGrid.Render.Msg
+    | ChooseCity
+    | ChooseCrop
+    | ChooseNature
+    | ChooseUnoccupied
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -85,6 +98,35 @@ update msg model =
                       }
                     , Cmd.none
                     )
+
+        CellGrid msg_ ->
+            case msg_ of
+                CellGrid.Render.MouseClick ( i, j ) ( x, y ) ->
+                    let
+                        message =
+                            "(i,j) = (" ++ String.fromInt i ++ ", " ++ String.fromInt j ++ ")"
+
+                        maybeSelectedCell =
+                            CellGrid.cellAtMatrixIndex ( i, j ) model.cellGrid
+                    in
+                    ( { model
+                        | stagedWorldChange = updateWordChange maybeSelectedCell model.selectedState model.stagedWorldChange
+                        , cellGrid = WorldGrid.toggleState model.selectedState ( i, j ) model.cellGrid
+                      }
+                    , Cmd.none
+                    )
+
+        ChooseCity ->
+            ( { model | selectedState = Occupied City }, Cmd.none )
+
+        ChooseCrop ->
+            ( { model | selectedState = Occupied Crop }, Cmd.none )
+
+        ChooseNature ->
+            ( { model | selectedState = Occupied Nature }, Cmd.none )
+
+        ChooseUnoccupied ->
+            ( { model | selectedState = Unoccupied }, Cmd.none )
 
 
 stageWorldChange : Model -> Model
@@ -130,3 +172,40 @@ view model =
 turnView : World -> Html msg
 turnView world =
     text ("Turn number: " ++ String.fromInt (List.length world))
+
+
+
+--
+-- Added by JC
+--
+
+
+updateWordChange : Maybe State -> State -> WorldChange -> WorldChange
+updateWordChange maybeSelectedCell chosenState worldChange =
+    if maybeSelectedCell /= Just chosenState then
+        case chosenState of
+            Occupied Crop ->
+                { worldChange | crops = worldChange.crops + 1 }
+
+            Occupied City ->
+                { worldChange | cities = worldChange.cities + 1 }
+
+            Occupied Nature ->
+                { worldChange | nature = worldChange.nature + 1 }
+
+            Unoccupied ->
+                worldChange
+
+    else
+        case chosenState of
+            Occupied Crop ->
+                { worldChange | crops = worldChange.crops - 1 }
+
+            Occupied City ->
+                { worldChange | cities = worldChange.cities - 1 }
+
+            Occupied Nature ->
+                { worldChange | nature = worldChange.nature - 1 }
+
+            Unoccupied ->
+                worldChange

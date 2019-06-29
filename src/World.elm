@@ -1,4 +1,4 @@
-module World exposing (AddResource(..), World, WorldChange, aggregate, init, resourceAvailable, score, view)
+module World exposing (Resource(..), World, WorldChange, aggregate, init, resourceAvailable, score, view)
 
 import Html exposing (..)
 import Html.Attributes
@@ -16,6 +16,20 @@ type alias WorldChange =
     }
 
 
+type alias Score =
+    { co2Offset : Int
+    , cropYield : Int
+    , productivity : Int
+    , cropUse : Int
+    }
+
+
+type Resource
+    = Nature
+    | Crop
+    | City
+
+
 init : World
 init =
     [ { nature = 0
@@ -23,14 +37,6 @@ init =
       , cities = 1
       }
     ]
-
-
-type alias Score =
-    { co2Offset : Int
-    , cropYield : Int
-    , productivity : Int
-    , cropUse : Int
-    }
 
 
 score :
@@ -74,7 +80,7 @@ scoreForWorldChange worldChange =
     }
 
 
-view : WorldChange -> World -> Html AddResource
+view : WorldChange -> World -> Html Resource
 view stagedWorldChange world =
     Html.div []
         [ scoreView (score world)
@@ -84,13 +90,7 @@ view stagedWorldChange world =
         ]
 
 
-type AddResource
-    = Nature
-    | Crop
-    | City
-
-
-resourceView : AddResource -> WorldChange -> World -> Html AddResource
+resourceView : Resource -> WorldChange -> World -> Html Resource
 resourceView resourceMsg stagedWorldChange world =
     Html.div []
         [ emojiFromResource resourceMsg
@@ -114,7 +114,7 @@ resourceView resourceMsg stagedWorldChange world =
         ]
 
 
-resourceAvailable : AddResource -> WorldChange -> World -> Bool
+resourceAvailable : Resource -> WorldChange -> World -> Bool
 resourceAvailable resource stagedChange world =
     let
         productivityAvailable =
@@ -126,7 +126,7 @@ resourceAvailable resource stagedChange world =
         && enoughCropAvailable resource stagedChange world
 
 
-enoughCropAvailable : AddResource -> WorldChange -> World -> Bool
+enoughCropAvailable : Resource -> WorldChange -> World -> Bool
 enoughCropAvailable resource worldChange world =
     let
         totalScore =
@@ -140,7 +140,7 @@ enoughCropAvailable resource worldChange world =
     totalScore.cropYield >= cropNeeded
 
 
-cropNeededForResource : AddResource -> Int
+cropNeededForResource : Resource -> Int
 cropNeededForResource resource =
     case resource of
         Nature ->
@@ -153,7 +153,7 @@ cropNeededForResource resource =
             1
 
 
-productivityNeeded : WorldChange -> AddResource -> Int
+productivityNeeded : WorldChange -> Resource -> Int
 productivityNeeded stagedChange resource =
     stagedChange.cities
         * 3
@@ -177,7 +177,7 @@ productivityNeeded stagedChange resource =
 -- 4
 
 
-laborForResource : AddResource -> String
+laborForResource : Resource -> String
 laborForResource resourceMsg =
     ((case resourceMsg of
         Nature ->
@@ -194,7 +194,7 @@ laborForResource resourceMsg =
         ++ " "
 
 
-getGetter : AddResource -> (WorldChange -> Int)
+getGetter : Resource -> (WorldChange -> Int)
 getGetter addResource =
     case addResource of
         Nature ->
@@ -207,7 +207,7 @@ getGetter addResource =
             .cities
 
 
-emojiFromResource : AddResource -> String
+emojiFromResource : Resource -> String
 emojiFromResource resource =
     case resource of
         Nature ->
