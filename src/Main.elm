@@ -53,7 +53,7 @@ init _ =
       , world =
             World.init
       , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
-      , selectedState = Unoccupied
+      , selectedState = Occupied City
       }
     , Cmd.none
     )
@@ -173,11 +173,11 @@ view model =
                 cellrenderer
                 model.cellGrid
                 |> Html.map CellGrid
+            , div [ Html.Attributes.style "float" "left" ] [ palette model ]
             ]
         , model.world
             |> World.view model.stagedWorldChange
             |> Html.map StageResource
-        , div [] [ palette model ]
         , Html.button
             [ Html.Events.onClick ChangeTheWorld
             , Html.Attributes.style "font-size" "40px"
@@ -200,39 +200,91 @@ turnView world =
 palette : Model -> Html Msg
 palette model =
     div []
-        [ div [] [ chooseCityButton model, text <| String.fromInt model.stagedWorldChange.cities ]
-        , div [] [ chooseCropButton model, text <| String.fromInt model.stagedWorldChange.crops ]
-        , div [] [ chooseNatureButton model, text <| String.fromInt model.stagedWorldChange.nature ]
-        , div [] [ chooseUnoccupiedButton model ]
+        [ div st [ paletteButton model City, text <| String.fromInt model.stagedWorldChange.cities ]
+        , div st [ paletteButton model Crop, text <| String.fromInt model.stagedWorldChange.crops ]
+        , div st [ paletteButton model Nature, text <| String.fromInt model.stagedWorldChange.nature ]
         ]
 
 
-chooseCityButton : Model -> Html Msg
-chooseCityButton model =
-    Html.button [ Html.Events.onClick ChooseCity ]
-        [ text "City" ]
+st =
+    [ Html.Attributes.style "margin-right" "10px" ]
 
 
-chooseCropButton : Model -> Html Msg
-chooseCropButton model =
-    Html.button [ Html.Events.onClick ChooseCrop ]
-        [ text "City" ]
+handlerOfResource : Resource -> Msg
+handlerOfResource resource =
+    case resource of
+        City ->
+            ChooseCity
+
+        Crop ->
+            ChooseCrop
+
+        Nature ->
+            ChooseNature
 
 
-chooseNatureButton : Model -> Html Msg
-chooseNatureButton model =
-    Html.button [ Html.Events.onClick ChooseNature ]
-        [ text "Nature" ]
+colorOfResource : Resource -> String
+colorOfResource resource =
+    case resource of
+        City ->
+            "blue"
+
+        Crop ->
+            "yellow"
+
+        Nature ->
+            "green"
 
 
-chooseUnoccupiedButton : Model -> Html Msg
-chooseUnoccupiedButton model =
-    Html.button [ Html.Events.onClick ChooseUnoccupied ]
-        [ text "Unoccupied" ]
+labelForResource : Resource -> String
+labelForResource resource =
+    case resource of
+        City ->
+            "City"
+
+        Crop ->
+            "Crop"
+
+        Nature ->
+            "Nature"
 
 
-paletButtonStyle r g b =
-    []
+paletteButton : Model -> Resource -> Html Msg
+paletteButton model resource =
+    let
+        dimensions =
+            if model.selectedState == Occupied resource then
+                "70px"
+
+            else
+                "60px"
+    in
+    Html.button
+        [ Html.Attributes.style "width" dimensions
+        , Html.Attributes.style "height" dimensions
+        , Html.Attributes.style "font-color" "white"
+        , Html.Attributes.style "background-color" (colorOfResource resource)
+        , Html.Attributes.style "margin-right" "10px"
+        , Html.Events.onClick (handlerOfResource resource)
+        ]
+        [ text <| labelForResource resource ]
+
+
+
+--
+-- selectedPaletteButton selectedState handler colorString =
+--   let
+--     dimensions = case (Occupied selectedState)
+--
+--   in
+--     Html.button
+--         [ Html.Attributes.style "width" "70px"
+--         , Html.Attributes.style "height" "70px"
+--         , Html.Attributes.style "font-color" "white"
+--         , Html.Attributes.style "background-color" colorString
+--         , Html.Attributes.style "margin-right" "10px"
+--         , Html.Events.onClick handler
+--         ]
 
 
 updateWordChange : Maybe State -> State -> WorldChange -> WorldChange
