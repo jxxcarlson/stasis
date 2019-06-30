@@ -52,7 +52,7 @@ init _ =
             }
       , world =
             World.init
-      , cellGrid = CellGrid.empty
+      , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
       , selectedState = Unoccupied
       }
     , Cmd.none
@@ -166,16 +166,18 @@ view model =
         [ Html.Attributes.style "font-size" "50px"
         ]
         [ turnView model.world
-        , CellGrid.Render.renderAsHtml
-            gridDisplayWidth
-            gridDisplayWidth
-            cellrenderer
-            model.cellGrid
-            |> Html.map CellGrid
+        , div []
+            [ CellGrid.Render.renderAsHtml
+                gridDisplayWidth
+                gridDisplayWidth
+                cellrenderer
+                model.cellGrid
+                |> Html.map CellGrid
+            ]
         , model.world
             |> World.view model.stagedWorldChange
             |> Html.map StageResource
-        , palette model
+        , div [] [ palette model ]
         , Html.button
             [ Html.Events.onClick ChangeTheWorld
             , Html.Attributes.style "font-size" "40px"
