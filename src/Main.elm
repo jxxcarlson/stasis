@@ -36,11 +36,11 @@ type alias Model =
 
 
 gridDisplayWidth =
-    450.0
+    550.0
 
 
 gridWidth =
-    6
+    8
 
 
 init : () -> ( Model, Cmd Msg )
@@ -165,19 +165,21 @@ view model =
     div
         [ Html.Attributes.style "font-size" "50px"
         ]
-        [ turnView model.world
-        , div []
+        [ div [ Html.Attributes.style "float" "left" ]
             [ renderGrid model
             , div [ Html.Attributes.style "float" "left" ] [ palette model ]
             ]
-        , model.world
-            |> World.view model.stagedWorldChange
-            |> Html.map StageResource
-        , Html.button
-            [ Html.Events.onClick ChangeTheWorld
-            , Html.Attributes.style "font-size" "40px"
+        , div [ Html.Attributes.style "float" "left", Html.Attributes.style "margin-left" "20px" ]
+            [ turnView model.world
+            , model.world
+                |> World.view model.stagedWorldChange
+                |> Html.map StageResource
+            , Html.button
+                [ Html.Events.onClick ChangeTheWorld
+                , Html.Attributes.style "font-size" "40px"
+                ]
+                [ text "Change the World! 🌏 🙌" ]
             ]
-            [ text "Change the World! 🌏 🙌" ]
         ]
 
 
