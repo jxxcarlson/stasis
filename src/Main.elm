@@ -167,12 +167,7 @@ view model =
         ]
         [ turnView model.world
         , div []
-            [ CellGrid.Render.renderAsHtml
-                gridDisplayWidth
-                gridDisplayWidth
-                cellrenderer
-                model.cellGrid
-                |> Html.map CellGrid
+            [ renderGrid model
             , div [ Html.Attributes.style "float" "left" ] [ palette model ]
             ]
         , model.world
@@ -197,6 +192,16 @@ turnView world =
 --
 
 
+renderGrid : Model -> Html Msg
+renderGrid model =
+    CellGrid.Render.renderAsHtml
+        gridDisplayWidth
+        gridDisplayWidth
+        cellrenderer
+        model.cellGrid
+        |> Html.map CellGrid
+
+
 palette : Model -> Html Msg
 palette model =
     div []
@@ -204,6 +209,27 @@ palette model =
         , div st [ paletteButton model Crop, text <| String.fromInt model.stagedWorldChange.crops ]
         , div st [ paletteButton model Nature, text <| String.fromInt model.stagedWorldChange.nature ]
         ]
+
+
+paletteButton : Model -> Resource -> Html Msg
+paletteButton model resource =
+    let
+        dimensions =
+            if model.selectedState == Occupied resource then
+                "70px"
+
+            else
+                "60px"
+    in
+    Html.button
+        [ Html.Attributes.style "width" dimensions
+        , Html.Attributes.style "height" dimensions
+        , Html.Attributes.style "font-color" "white"
+        , Html.Attributes.style "background-color" (colorOfResource resource)
+        , Html.Attributes.style "margin-right" "10px"
+        , Html.Events.onClick (handlerOfResource resource)
+        ]
+        [ text <| labelForResource resource ]
 
 
 st =
@@ -247,44 +273,6 @@ labelForResource resource =
 
         Nature ->
             "Nature"
-
-
-paletteButton : Model -> Resource -> Html Msg
-paletteButton model resource =
-    let
-        dimensions =
-            if model.selectedState == Occupied resource then
-                "70px"
-
-            else
-                "60px"
-    in
-    Html.button
-        [ Html.Attributes.style "width" dimensions
-        , Html.Attributes.style "height" dimensions
-        , Html.Attributes.style "font-color" "white"
-        , Html.Attributes.style "background-color" (colorOfResource resource)
-        , Html.Attributes.style "margin-right" "10px"
-        , Html.Events.onClick (handlerOfResource resource)
-        ]
-        [ text <| labelForResource resource ]
-
-
-
---
--- selectedPaletteButton selectedState handler colorString =
---   let
---     dimensions = case (Occupied selectedState)
---
---   in
---     Html.button
---         [ Html.Attributes.style "width" "70px"
---         , Html.Attributes.style "height" "70px"
---         , Html.Attributes.style "font-color" "white"
---         , Html.Attributes.style "background-color" colorString
---         , Html.Attributes.style "margin-right" "10px"
---         , Html.Events.onClick handler
---         ]
 
 
 updateWordChange : Maybe State -> State -> WorldChange -> WorldChange
