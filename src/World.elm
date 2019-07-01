@@ -93,8 +93,8 @@ view stagedWorldChange world =
 resourceView : Resource -> WorldChange -> World -> Html Resource
 resourceView resourceMsg stagedWorldChange world =
     Html.div []
-        [ emojiFromResource resourceMsg
-            ++ " "
+        [ -- emojiFromResource resourceMsg
+          " "
             ++ String.fromInt (aggregate world |> getGetter resourceMsg)
             ++ " ("
             ++ String.fromInt
