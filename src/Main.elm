@@ -116,10 +116,25 @@ update msg model =
 
                         maybeSelectedCell =
                             CellGrid.cellAtMatrixIndex ( i, j ) model.cellGrid
+
+                        ( newStagedWorldChange, newCellGrid ) =
+                            case model.selectedState of
+                                Unoccupied ->
+                                    ( model.stagedWorldChange, model.cellGrid )
+
+                                Occupied resource ->
+                                    case World.resourceAvailable resource model.stagedWorldChange model.world of
+                                        True ->
+                                            ( updateWordChange maybeSelectedCell model.selectedState model.stagedWorldChange
+                                            , WorldGrid.toggleState model.selectedState ( i, j ) model.cellGrid
+                                            )
+
+                                        False ->
+                                            ( model.stagedWorldChange, model.cellGrid )
                     in
                     ( { model
-                        | stagedWorldChange = updateWordChange maybeSelectedCell model.selectedState model.stagedWorldChange
-                        , cellGrid = WorldGrid.toggleState model.selectedState ( i, j ) model.cellGrid
+                        | stagedWorldChange = newStagedWorldChange
+                        , cellGrid = newCellGrid
                       }
                     , Cmd.none
                     )
@@ -230,6 +245,7 @@ paletteButton model resource =
         , Html.Attributes.style "background-color" (colorOfResource resource)
         , Html.Attributes.style "margin-right" "10px"
         , Html.Events.onClick (handlerOfResource resource)
+        , Html.Attributes.disabled (not (World.resourceAvailable resource model.stagedWorldChange model.world))
         ]
         [ text <| labelForResource resource ]
 

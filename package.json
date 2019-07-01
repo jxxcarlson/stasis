@@ -10,7 +10,9 @@
   },
   "author": "Katje, Dillon, Thibaut, Jim",
   "license": "BSD-3",
-  "dependencies": {},
+  "dependencies": {
+    "parcel": "^1.12.3"
+  },
   "devDependencies": {
     "elm": "^0.19.0-no-deps",
     "elm-hot": "^1.1.0",
