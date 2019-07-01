@@ -226,7 +226,7 @@ renderGrid model =
         _ =
             Debug.log "VACANT" (WorldGrid.indicesOfVacantCells model.cellGrid)
     in
-    CellGrid.Render.renderAsHtml
+    CellGrid.Render.asHtml
         gridDisplayWidth
         gridDisplayWidth
         cellrenderer
