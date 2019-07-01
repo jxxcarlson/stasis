@@ -1,6 +1,7 @@
 module WorldGrid exposing
     ( State(..)
     , emptyGrid
+    , filterVacant
     , indicesOfCellsOfResourceType
     , indicesOfVacantCells
     , matrixIndicesOfSameResource
@@ -115,6 +116,12 @@ neighborsOfSameResource resource ((CellGrid ( nRows, nCols ) cells) as cg) =
         |> List.concat
         |> List.filter (\( x, y ) -> x >= 0 && y >= 0)
         |> unique
+
+
+filterVacant : CellGrid State -> List ( Int, Int ) -> List ( Int, Int )
+filterVacant ((CellGrid ( nRows, nCols ) cells) as cg) tupleList =
+    tupleList
+        |> List.filter (\( i, j ) -> CellGrid.cellAtMatrixIndex ( i, j ) cg == Just Unoccupied)
 
 
 unique : List comparable -> List comparable

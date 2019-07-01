@@ -362,50 +362,56 @@ cellrenderer =
     }
 
 
+setRandomCell1 : Float -> Resource -> CellGrid State -> CellGrid State
+setRandomCell1 p resource cellGrid =
+    let
+        freeIndices =
+            WorldGrid.indicesOfVacantCells cellGrid
+
+        n =
+            freeIndices
+                |> Array.length
+                |> toFloat
+
+        k =
+            (p * n)
+                |> round
+    in
+    case Array.get k freeIndices of
+        Nothing ->
+            cellGrid
+
+        Just ( i, j ) ->
+            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+
+
 setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
 setRandomCell p resource cellGrid =
     let
-        freeIndices =
-            WorldGrid.indicesOfVacantCells cellGrid
+        freeIndexTuples =
+            WorldGrid.neighborsOfSameResource resource cellGrid
+                |> WorldGrid.filterVacant cellGrid
 
         n =
-            freeIndices
-                |> Array.length
+            freeIndexTuples
+                |> List.length
                 |> toFloat
 
         k =
             (p * n)
                 |> round
     in
-    case Array.get k freeIndices of
+    case getElement k freeIndexTuples of
         Nothing ->
-            cellGrid
+            setRandomCell1 p resource cellGrid
 
         Just ( i, j ) ->
             CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
 
 
-setRandomCell2 : Float -> Resource -> CellGrid State -> CellGrid State
-setRandomCell2 p resource cellGrid =
-    let
-        freeIndices =
-            WorldGrid.indicesOfVacantCells cellGrid
-
-        n =
-            freeIndices
-                |> Array.length
-                |> toFloat
-
-        k =
-            (p * n)
-                |> round
-    in
-    case Array.get k freeIndices of
-        Nothing ->
-            cellGrid
-
-        Just ( i, j ) ->
-            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+getElement : Int -> List a -> Maybe a
+getElement k list =
+    list |> List.drop (k - 1) |> List.head
 
 
 

@@ -87,6 +87,32 @@ suite =
                         [ ( 2, 2 ), ( 2, 1 ), ( 2, 0 ), ( 1, 2 ), ( 1, 1 ), ( 1, 0 ), ( 0, 2 ), ( 0, 1 ), ( 0, 0 ) ]
                 in
                 Expect.equal testIndices goodIndices
+        , test "unoccupied neighborsOfSameResource" <|
+            \_ ->
+                let
+                    cg =
+                        CellGrid.fromList 3
+                            3
+                            [ Unoccupied
+                            , Occupied Nature
+                            , Occupied Crop
+                            , Unoccupied
+                            , Occupied Nature
+                            , Occupied Crop
+                            , Occupied Crop
+                            , Occupied City
+                            , Unoccupied
+                            ]
+                            |> Maybe.withDefault CellGrid.empty
+
+                    testIndices =
+                        WorldGrid.neighborsOfSameResource Nature cg
+                            |> WorldGrid.filterVacant cg
+
+                    goodIndices =
+                        [ ( 2, 2 ), ( 1, 0 ), ( 0, 0 ) ]
+                in
+                Expect.equal testIndices goodIndices
 
         --
         ]
