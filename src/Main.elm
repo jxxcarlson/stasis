@@ -53,7 +53,7 @@ init _ =
       , world =
             World.init
       , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
-      , selectedState = Occupied City
+      , selectedState = Occupied Crop
       }
     , Cmd.none
     )
