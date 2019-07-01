@@ -1,4 +1,11 @@
-module WorldGrid exposing (State(..), emptyGrid, numberOccupied, spot, toggleState, updateCells)
+module WorldGrid exposing
+    ( State(..)
+    , emptyGrid
+    , indicesOfVacantCells
+    , numberOccupied
+    , toggleState
+    , updateCells
+    )
 
 import Array exposing (Array)
 import CellGrid exposing (CellGrid(..), CellType(..), cellAtMatrixIndex)
@@ -23,11 +30,6 @@ updateCells cellGrid =
     cellGrid
 
 
-vacate : ( Int, Int ) -> CellGrid State -> CellGrid State
-vacate ( i, j ) cg =
-    CellGrid.setValue cg ( i, j ) Unoccupied
-
-
 toggleState : State -> ( Int, Int ) -> CellGrid State -> CellGrid State
 toggleState newState ( i, j ) cg =
     case CellGrid.cellAtMatrixIndex ( i, j ) cg of
@@ -40,28 +42,6 @@ toggleState newState ( i, j ) cg =
 
             else
                 CellGrid.setValue cg ( i, j ) newState
-
-
-spot : ( Int, Int ) -> Float -> State -> CellGrid State -> CellGrid State
-spot ( centerI, centerJ ) radius state cg =
-    let
-        cellTransformer : ( Int, Int ) -> State -> State
-        cellTransformer ( i, j ) t =
-            let
-                di =
-                    toFloat <| i - centerI
-
-                dj =
-                    toFloat <| j - centerJ
-            in
-            case di * di + dj * dj <= radius * radius of
-                True ->
-                    state
-
-                False ->
-                    t
-    in
-    CellGrid.mapWithIndex cellTransformer cg
 
 
 gen : Int -> ( Float, Float ) -> Random.Generator (List Float)
@@ -79,32 +59,6 @@ cellSequence_ n seed ( a, b ) =
     Random.step (gen n ( a, b )) seed
 
 
-neighborFilter : CellGrid u -> ( Int, Int ) -> Bool
-neighborFilter (CellGrid ( nRows, nCols ) _) ( a, b ) =
-    a >= 0 && a < nRows && b >= 0 && b < nCols
-
-
-neighborIndices : CellGrid a -> ( Int, Int ) -> List ( Int, Int )
-neighborIndices cg ( row, col ) =
-    [ ( row - 1, col )
-    , ( row + 1, col )
-    , ( row, col - 1 )
-    , ( row, col + 1 )
-    , ( row - 1, col - 1 )
-    , ( row - 1, col + 1 )
-    , ( row + 1, col - 1 )
-    , ( row + 1, col + 1 )
-    ]
-        |> List.filter (neighborFilter cg)
-
-
-neighbors : CellGrid a -> ( Int, Int ) -> List a
-neighbors cg ( row, col ) =
-    neighborIndices cg ( row, col )
-        |> List.map (\( r, c ) -> cellAtMatrixIndex ( r, c ) cg)
-        |> Maybe.Extra.values
-
-
 numberVacant : CellGrid State -> Int
 numberVacant (CellGrid ( _, _ ) cells) =
     cells
@@ -119,8 +73,10 @@ numberOccupied (CellGrid ( _, _ ) cells) =
         |> Array.length
 
 
-occupiedNeighbors : CellGrid State -> ( Int, Int ) -> Int
-occupiedNeighbors cg ( row, col ) =
-    neighbors cg ( row, col )
-        |> List.filter (\state -> state /= Unoccupied)
-        |> List.length
+indicesOfVacantCells : CellGrid State -> Array ( Int, Int )
+indicesOfVacantCells (CellGrid ( nRows, nCols ) cells) =
+    cells
+        |> Array.indexedMap (\k state -> ( k, state ))
+        |> Array.filter (\( k, state ) -> state == Unoccupied)
+        |> Array.map (\( k, state ) -> k)
+        |> Array.map (\k -> CellGrid.matrixIndex ( nRows, nCols ) k)

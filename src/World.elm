@@ -1,4 +1,4 @@
-module World exposing (Resource(..), World, WorldChange, aggregate, init, resourceAvailable, score, view)
+module World exposing (Resource(..), World, WorldChange, aggregate, emojiFromResource, init, resourceAvailable, score, view)
 
 import Html exposing (..)
 import Html.Attributes
@@ -109,7 +109,7 @@ resourceView resourceMsg stagedWorldChange world =
             , Html.Attributes.style "font-size" "40px"
             , Html.Attributes.disabled (not (resourceAvailable resourceMsg stagedWorldChange world))
             ]
-            [ text "+"
+            [ text <| emojiFromResource resourceMsg
             ]
         ]
 

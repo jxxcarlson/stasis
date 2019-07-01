@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Array
 import Browser
 import CellGrid exposing (CellGrid)
 import CellGrid.Render exposing (CellRenderer)
@@ -9,6 +10,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, string)
+import Random
 import World exposing (Resource(..), World, WorldChange)
 import WorldGrid exposing (State(..))
 
@@ -32,6 +34,7 @@ type alias Model =
     , world : World
     , cellGrid : CellGrid State
     , selectedState : State
+    , randomFloat : Float
     }
 
 
@@ -40,7 +43,7 @@ gridDisplayWidth =
 
 
 gridWidth =
-    8
+    16
 
 
 init : () -> ( Model, Cmd Msg )
@@ -54,8 +57,9 @@ init _ =
             World.init
       , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
       , selectedState = Occupied Crop
+      , randomFloat = 0.0
       }
-    , Cmd.none
+    , Random.generate NewRandomFloat (Random.float 0 1)
     )
 
 
@@ -67,6 +71,7 @@ type Msg
     | ChooseCrop
     | ChooseNature
     | ChooseUnoccupied
+    | NewRandomFloat Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -74,7 +79,7 @@ update msg model =
     case msg of
         ChangeTheWorld ->
             ( stageWorldChange model
-            , Cmd.none
+            , Random.generate NewRandomFloat (Random.float 0 1)
             )
 
         StageResource newResource ->
@@ -87,24 +92,27 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | nature = stagedResource.nature + 1 }
+                        , cellGrid = setRandomCell model.randomFloat Nature model.cellGrid
                       }
-                    , Cmd.none
+                    , Random.generate NewRandomFloat (Random.float 0 1)
                     )
 
                 World.Crop ->
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | crops = stagedResource.crops + 1 }
+                        , cellGrid = setRandomCell model.randomFloat Crop model.cellGrid
                       }
-                    , Cmd.none
+                    , Random.generate NewRandomFloat (Random.float 0 1)
                     )
 
                 World.City ->
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | cities = stagedResource.cities + 1 }
+                        , cellGrid = setRandomCell model.randomFloat City model.cellGrid
                       }
-                    , Cmd.none
+                    , Random.generate NewRandomFloat (Random.float 0 1)
                     )
 
         CellGrid msg_ ->
@@ -150,6 +158,9 @@ update msg model =
 
         ChooseUnoccupied ->
             ( { model | selectedState = Unoccupied }, Cmd.none )
+
+        NewRandomFloat p ->
+            ( { model | randomFloat = p }, Cmd.none )
 
 
 stageWorldChange : Model -> Model
@@ -211,6 +222,10 @@ turnView world =
 
 renderGrid : Model -> Html Msg
 renderGrid model =
+    let
+        _ =
+            Debug.log "VACANT" (WorldGrid.indicesOfVacantCells model.cellGrid)
+    in
     CellGrid.Render.renderAsHtml
         gridDisplayWidth
         gridDisplayWidth
@@ -244,6 +259,7 @@ paletteButton model resource =
         , Html.Attributes.style "font-color" "white"
         , Html.Attributes.style "background-color" (colorOfResource resource)
         , Html.Attributes.style "margin-right" "10px"
+        , Html.Attributes.style "font-size" "30px"
         , Html.Events.onClick (handlerOfResource resource)
         , Html.Attributes.disabled (not (World.resourceAvailable resource model.stagedWorldChange model.world))
         ]
@@ -274,23 +290,23 @@ colorOfResource resource =
             "blue"
 
         Crop ->
-            "yellow"
+            "#ee5"
 
         Nature ->
-            "green"
+            "#5f5"
 
 
 labelForResource : Resource -> String
 labelForResource resource =
     case resource of
         City ->
-            "City"
+            World.emojiFromResource City
 
         Crop ->
-            "Crop"
+            World.emojiFromResource Crop
 
         Nature ->
-            "Nature"
+            World.emojiFromResource Nature
 
 
 updateWordChange : Maybe State -> State -> WorldChange -> WorldChange
@@ -344,3 +360,26 @@ cellrenderer =
     , gridLineWidth = 0.5
     , gridLineColor = Color.rgb 0 0 1
     }
+
+
+setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
+setRandomCell p resource cellGrid =
+    let
+        freeIndices =
+            WorldGrid.indicesOfVacantCells cellGrid
+
+        n =
+            freeIndices
+                |> Array.length
+                |> toFloat
+
+        k =
+            (p * n)
+                |> round
+    in
+    case Array.get k freeIndices of
+        Nothing ->
+            cellGrid
+
+        Just ( i, j ) ->
+            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
