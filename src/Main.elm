@@ -383,3 +383,33 @@ setRandomCell p resource cellGrid =
 
         Just ( i, j ) ->
             CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+
+
+setRandomCell2 : Float -> Resource -> CellGrid State -> CellGrid State
+setRandomCell2 p resource cellGrid =
+    let
+        freeIndices =
+            WorldGrid.indicesOfVacantCells cellGrid
+
+        n =
+            freeIndices
+                |> Array.length
+                |> toFloat
+
+        k =
+            (p * n)
+                |> round
+    in
+    case Array.get k freeIndices of
+        Nothing ->
+            cellGrid
+
+        Just ( i, j ) ->
+            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+
+
+
+--
+-- cellsOfResourceType : Resource -> CellGrid Resource -> Array ( Int, Int )
+-- cellsOfResourceType resource cellGrid =
+--
