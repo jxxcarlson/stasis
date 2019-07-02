@@ -7,6 +7,7 @@ module WorldGrid exposing
     , matrixIndicesOfSameResource
     , neighborsOfSameResource
     , numberOccupied
+    , setRandomCell
     , toggleState
     , unique
     , updateCells
@@ -16,6 +17,7 @@ import Array exposing (Array)
 import CellGrid exposing (CellGrid(..), CellType(..), cellAtMatrixIndex)
 import Maybe.Extra
 import Random
+import Utility
 import World exposing (Resource)
 
 
@@ -137,6 +139,53 @@ unique list =
                     acc
             )
             []
+
+
+setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
+setRandomCell p resource cellGrid =
+    let
+        freeIndexTuples =
+            neighborsOfSameResource resource cellGrid
+                |> filterVacant cellGrid
+
+        n =
+            freeIndexTuples
+                |> List.length
+                |> toFloat
+
+        k =
+            (p * n)
+                |> round
+    in
+    case Utility.getListElement k freeIndexTuples of
+        Nothing ->
+            setRandomCell1 p resource cellGrid
+
+        Just ( i, j ) ->
+            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+
+
+setRandomCell1 : Float -> Resource -> CellGrid State -> CellGrid State
+setRandomCell1 p resource cellGrid =
+    let
+        freeIndices =
+            indicesOfVacantCells cellGrid
+
+        n =
+            freeIndices
+                |> Array.length
+                |> toFloat
+
+        k =
+            (p * n)
+                |> round
+    in
+    case Array.get k freeIndices of
+        Nothing ->
+            cellGrid
+
+        Just ( i, j ) ->
+            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
 
 
 neighborIndices : ( Int, Int ) -> List ( Int, Int )

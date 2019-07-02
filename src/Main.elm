@@ -92,7 +92,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | nature = stagedResource.nature + 1 }
-                        , cellGrid = setRandomCell model.randomFloat Nature model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat Nature model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
@@ -101,7 +101,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | crops = stagedResource.crops + 1 }
-                        , cellGrid = setRandomCell model.randomFloat Crop model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat Crop model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
@@ -110,7 +110,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | cities = stagedResource.cities + 1 }
-                        , cellGrid = setRandomCell model.randomFloat City model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat City model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
@@ -360,58 +360,6 @@ cellrenderer =
     , gridLineWidth = 0.5
     , gridLineColor = Color.rgb 0 0 1
     }
-
-
-setRandomCell1 : Float -> Resource -> CellGrid State -> CellGrid State
-setRandomCell1 p resource cellGrid =
-    let
-        freeIndices =
-            WorldGrid.indicesOfVacantCells cellGrid
-
-        n =
-            freeIndices
-                |> Array.length
-                |> toFloat
-
-        k =
-            (p * n)
-                |> round
-    in
-    case Array.get k freeIndices of
-        Nothing ->
-            cellGrid
-
-        Just ( i, j ) ->
-            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
-
-
-setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
-setRandomCell p resource cellGrid =
-    let
-        freeIndexTuples =
-            WorldGrid.neighborsOfSameResource resource cellGrid
-                |> WorldGrid.filterVacant cellGrid
-
-        n =
-            freeIndexTuples
-                |> List.length
-                |> toFloat
-
-        k =
-            (p * n)
-                |> round
-    in
-    case getElement k freeIndexTuples of
-        Nothing ->
-            setRandomCell1 p resource cellGrid
-
-        Just ( i, j ) ->
-            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
-
-
-getElement : Int -> List a -> Maybe a
-getElement k list =
-    list |> List.drop (k - 1) |> List.head
 
 
 
