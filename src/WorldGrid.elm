@@ -97,8 +97,8 @@ indicesOfCellsOfResourceType resource (CellGrid ( nRows, nCols ) cells) =
         |> Array.toList
 
 
-changeFractionOfResources : Float -> Float -> Resource -> Resource -> CellGrid State -> ( Int, CellGrid State )
-changeFractionOfResources seed p sourceResource targetResource ((CellGrid ( nRows, nCols ) cells) as grid) =
+changeFractionOfResources : Float -> Float -> Resource -> State -> CellGrid State -> ( Int, CellGrid State )
+changeFractionOfResources seed p sourceResource targetState ((CellGrid ( nRows, nCols ) cells) as grid) =
     let
         matrixIndices =
             indicesOfCellsOfResourceType sourceResource grid
@@ -118,7 +118,7 @@ changeFractionOfResources seed p sourceResource targetResource ((CellGrid ( nRow
         mapper : ( Int, Int ) -> State -> State
         mapper ( i, j ) state =
             if isChosenMatrixIndex ( i, j ) then
-                Occupied targetResource
+                targetState
 
             else
                 state
