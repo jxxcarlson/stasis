@@ -1,4 +1,14 @@
-module World exposing (Resource(..), World, WorldChange, aggregate, emojiFromResource, init, resourceAvailable, score, view)
+module World exposing
+    ( Resource(..)
+    , World
+    , WorldChange
+    , aggregate
+    , emojiFromResource
+    , init
+    , resourceAvailable
+    , score
+    , view
+    )
 
 import Html exposing (..)
 import Html.Attributes
@@ -252,7 +262,8 @@ scoreView worldScore =
                 ++ "/"
                 ++ (worldScore.cropYield |> String.fromInt)
            )
-         , ( "👷\u{200D}♀️", worldScore.productivity |> String.fromInt )
+
+         --, ( "👷\u{200D}♀️", worldScore.productivity |> String.fromInt )
          , ( "🌬", worldScore.co2Offset |> String.fromInt )
          ]
             |> List.map

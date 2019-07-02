@@ -71,7 +71,7 @@ init _ =
       , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
       , selectedState = Occupied Crop
       , randomFloat = 0.0
-      , message = "Game starting ... "
+      , message = "Game starting.  Try to make CO2 offsets larger (now at -2)."
       }
     , Random.generate NewRandomFloat (Random.float 0 1)
     )
@@ -89,11 +89,30 @@ type Msg
     | NewRandomFloat2 Float
 
 
+fundsAvailable : Model -> Int
+fundsAvailable model =
+    (World.score model.world).productivity
+        - model.stagedWorldChange.nature
+        - 2
+        * model.stagedWorldChange.crops
+        - 3
+        * model.stagedWorldChange.cities
+
+
+fundsAvailableMessage : Model -> String
+fundsAvailableMessage model =
+    "Funds available: " ++ String.fromInt (fundsAvailable model)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeTheWorld ->
-            ( stageWorldChange model
+            let
+                newModel =
+                    stageWorldChange model
+            in
+            ( { newModel | message = "" }
             , Random.generate NewRandomFloat2 (Random.float 0 1)
             )
 
@@ -204,7 +223,7 @@ update msg model =
 
                 disasterMessage =
                     if deltaCrop > 0 then
-                        "Environment has degraded! You have lost " ++ String.fromInt deltaCrop ++ " units of cropland"
+                        "Environment is stressed! You have lost " ++ String.fromInt deltaCrop ++ " units of cropland"
 
                     else
                         ""
@@ -245,7 +264,7 @@ viewDocument model =
 view : Model -> Html Msg
 view model =
     div
-        [ Html.Attributes.style "font-size" "50px"
+        [ Html.Attributes.style "font-size" "40px"
         ]
         [ div [ Html.Attributes.style "float" "left" ]
             [ renderGrid model
@@ -259,8 +278,14 @@ view model =
             , Html.button
                 [ Html.Events.onClick ChangeTheWorld
                 , Html.Attributes.style "font-size" "40px"
+                , Html.Attributes.style "margin-top" "10px"
                 ]
                 [ text "Change the World! 🌏 🙌" ]
+            , div
+                [ style "font-size" "24px"
+                , Html.Attributes.style "margin-top" "20px"
+                ]
+                [ text <| fundsAvailableMessage model ]
             , div
                 [ Html.Attributes.style "font-size" "24px"
                 , Html.Attributes.style "margin-top" "20px"
