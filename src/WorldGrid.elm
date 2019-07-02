@@ -3,10 +3,10 @@ module WorldGrid exposing
     , changeFractionOfResources
     , emptyGrid
     , filterVacant
-    , indicesOfCellsOfResourceType
+    , indicesOfCellsOfGivenState
     , indicesOfVacantCells
-    , matrixIndicesOfSameResource
-    , neighborsOfSameResource
+    , matrixIndicesOfGivenState
+    , neighborsOfGivenState
     , numberOccupied
     , setRandomCell
     , toggleState
@@ -89,19 +89,19 @@ indicesOfVacantCells (CellGrid ( nRows, nCols ) cells) =
         |> Array.map (\k -> CellGrid.matrixIndex ( nRows, nCols ) k)
 
 
-indicesOfCellsOfResourceType : Resource -> CellGrid.CellGrid State -> List ( Int, State )
-indicesOfCellsOfResourceType resource (CellGrid ( nRows, nCols ) cells) =
+indicesOfCellsOfGivenState : State -> CellGrid.CellGrid State -> List ( Int, State )
+indicesOfCellsOfGivenState targetState (CellGrid ( nRows, nCols ) cells) =
     cells
         |> Array.indexedMap (\k state -> ( k, state ))
-        |> Array.filter (\( k, state ) -> state == Occupied resource)
+        |> Array.filter (\( k, state ) -> state == targetState)
         |> Array.toList
 
 
-changeFractionOfResources : Float -> Float -> Resource -> State -> CellGrid State -> ( Int, CellGrid State )
-changeFractionOfResources seed p sourceResource targetState ((CellGrid ( nRows, nCols ) cells) as grid) =
+changeFractionOfResources : Float -> Float -> State -> State -> CellGrid State -> ( Int, CellGrid State )
+changeFractionOfResources seed p sourceState targetState ((CellGrid ( nRows, nCols ) cells) as grid) =
     let
         matrixIndices =
-            indicesOfCellsOfResourceType sourceResource grid
+            indicesOfCellsOfGivenState sourceState grid
                 |> List.map Tuple.first
                 |> List.map (CellGrid.matrixIndex ( nRows, nCols ))
 
@@ -126,21 +126,21 @@ changeFractionOfResources seed p sourceResource targetState ((CellGrid ( nRows, 
     ( nChosen, CellGrid.mapWithIndex mapper grid )
 
 
-matrixIndicesOfSameResource : Resource -> CellGrid.CellGrid State -> List ( Int, Int )
-matrixIndicesOfSameResource resource ((CellGrid ( nRows, nCols ) cells) as cg) =
+matrixIndicesOfGivenState : State -> CellGrid.CellGrid State -> List ( Int, Int )
+matrixIndicesOfGivenState state ((CellGrid ( nRows, nCols ) cells) as cg) =
     let
         indices =
-            indicesOfCellsOfResourceType resource cg
+            indicesOfCellsOfGivenState state cg
                 |> List.map (Tuple.first >> CellGrid.matrixIndex ( nRows, nCols ))
     in
     indices
 
 
-neighborsOfSameResource : Resource -> CellGrid.CellGrid State -> List ( Int, Int )
-neighborsOfSameResource resource ((CellGrid ( nRows, nCols ) cells) as cg) =
+neighborsOfGivenState : State -> CellGrid.CellGrid State -> List ( Int, Int )
+neighborsOfGivenState state ((CellGrid ( nRows, nCols ) cells) as cg) =
     let
         indices =
-            matrixIndicesOfSameResource resource cg
+            matrixIndicesOfGivenState state cg
     in
     indices
         |> List.map neighborIndices
@@ -155,11 +155,11 @@ filterVacant ((CellGrid ( nRows, nCols ) cells) as cg) tupleList =
         |> List.filter (\( i, j ) -> CellGrid.cellAtMatrixIndex ( i, j ) cg == Just Unoccupied)
 
 
-setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
-setRandomCell p resource cellGrid =
+setRandomCell : Float -> State -> CellGrid State -> CellGrid State
+setRandomCell p state cellGrid =
     let
         freeIndexTuples =
-            neighborsOfSameResource resource cellGrid
+            neighborsOfGivenState state cellGrid
                 |> filterVacant cellGrid
 
         n =
@@ -173,14 +173,14 @@ setRandomCell p resource cellGrid =
     in
     case Utility.getListElement k freeIndexTuples of
         Nothing ->
-            setRandomCell1 p resource cellGrid
+            setRandomCell1 p state cellGrid
 
         Just ( i, j ) ->
-            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+            CellGrid.setValue cellGrid ( i, j ) state
 
 
-setRandomCell1 : Float -> Resource -> CellGrid State -> CellGrid State
-setRandomCell1 p resource cellGrid =
+setRandomCell1 : Float -> State -> CellGrid State -> CellGrid State
+setRandomCell1 p state cellGrid =
     let
         freeIndices =
             indicesOfVacantCells cellGrid
@@ -199,7 +199,7 @@ setRandomCell1 p resource cellGrid =
             cellGrid
 
         Just ( i, j ) ->
-            CellGrid.setValue cellGrid ( i, j ) (Occupied resource)
+            CellGrid.setValue cellGrid ( i, j ) state
 
 
 neighborIndices : ( Int, Int ) -> List ( Int, Int )

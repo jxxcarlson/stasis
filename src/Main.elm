@@ -92,7 +92,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | nature = stagedResource.nature + 1 }
-                        , cellGrid = WorldGrid.setRandomCell model.randomFloat Nature model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat (Occupied Nature) model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
@@ -101,7 +101,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | crops = stagedResource.crops + 1 }
-                        , cellGrid = WorldGrid.setRandomCell model.randomFloat Crop model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat (Occupied Crop) model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
@@ -110,7 +110,7 @@ update msg model =
                     ( { model
                         | stagedWorldChange =
                             { stagedResource | cities = stagedResource.cities + 1 }
-                        , cellGrid = WorldGrid.setRandomCell model.randomFloat City model.cellGrid
+                        , cellGrid = WorldGrid.setRandomCell model.randomFloat (Occupied City) model.cellGrid
                       }
                     , Random.generate NewRandomFloat (Random.float 0 1)
                     )
