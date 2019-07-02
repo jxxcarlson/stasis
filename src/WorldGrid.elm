@@ -9,7 +9,6 @@ module WorldGrid exposing
     , numberOccupied
     , setRandomCell
     , toggleState
-    , unique
     , updateCells
     )
 
@@ -17,7 +16,7 @@ import Array exposing (Array)
 import CellGrid exposing (CellGrid(..), CellType(..), cellAtMatrixIndex)
 import Maybe.Extra
 import Random
-import Utility
+import Utility exposing (uniquefyList)
 import World exposing (Resource)
 
 
@@ -117,28 +116,13 @@ neighborsOfSameResource resource ((CellGrid ( nRows, nCols ) cells) as cg) =
         |> List.map neighborIndices
         |> List.concat
         |> List.filter (\( x, y ) -> x >= 0 && y >= 0)
-        |> unique
+        |> Utility.uniquefyList
 
 
 filterVacant : CellGrid State -> List ( Int, Int ) -> List ( Int, Int )
 filterVacant ((CellGrid ( nRows, nCols ) cells) as cg) tupleList =
     tupleList
         |> List.filter (\( i, j ) -> CellGrid.cellAtMatrixIndex ( i, j ) cg == Just Unoccupied)
-
-
-unique : List comparable -> List comparable
-unique list =
-    list
-        |> List.sort
-        |> List.foldl
-            (\item acc ->
-                if Just item /= List.head acc then
-                    item :: acc
-
-                else
-                    acc
-            )
-            []
 
 
 setRandomCell : Float -> Resource -> CellGrid State -> CellGrid State
