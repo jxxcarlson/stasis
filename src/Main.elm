@@ -35,6 +35,7 @@ type alias Model =
     , cellGrid : CellGrid State
     , selectedState : State
     , randomFloat : Float
+    , message : String
     }
 
 
@@ -45,7 +46,7 @@ type alias GameParameters =
 
 
 gameParameters =
-    { probabilityOfDisaster = 0.1
+    { probabilityOfDisaster = 0.133
     , co2OffsetThreshold = -5
     }
 
@@ -70,6 +71,7 @@ init _ =
       , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
       , selectedState = Occupied Crop
       , randomFloat = 0.0
+      , message = "Game starting ... "
       }
     , Random.generate NewRandomFloat (Random.float 0 1)
     )
@@ -189,7 +191,7 @@ update msg model =
 
                 ( deltaCrop, newCellGrid ) =
                     if p < pd then
-                        WorldGrid.changeFractionOfGivenState p 0.2 (Occupied Crop) Unoccupied model.cellGrid
+                        WorldGrid.changeFractionOfGivenState p 0.33 (Occupied Crop) Unoccupied model.cellGrid
 
                     else
                         ( 0, model.cellGrid )
@@ -202,7 +204,7 @@ update msg model =
 
                 disasterMessage =
                     if deltaCrop > 0 then
-                        "Sad: you have lost " ++ String.fromInt deltaCrop ++ "units of cropland"
+                        "Environment has degraded! You have lost " ++ String.fromInt deltaCrop ++ " units of cropland"
 
                     else
                         ""
@@ -211,8 +213,7 @@ update msg model =
                 | cellGrid = newCellGrid
                 , stagedWorldChange = newStagedWorldChange
                 , randomFloat = p
-
-                -- , message = disasterMessage
+                , message = disasterMessage
               }
             , Cmd.none
             )
@@ -260,6 +261,11 @@ view model =
                 , Html.Attributes.style "font-size" "40px"
                 ]
                 [ text "Change the World! 🌏 🙌" ]
+            , div
+                [ Html.Attributes.style "font-size" "24px"
+                , Html.Attributes.style "margin-top" "20px"
+                ]
+                [ text <| model.message ]
             ]
         ]
 
@@ -277,10 +283,6 @@ turnView world =
 
 renderGrid : Model -> Html Msg
 renderGrid model =
-    let
-        _ =
-            Debug.log "VACANT" (WorldGrid.indicesOfVacantCells model.cellGrid)
-    in
     CellGrid.Render.asHtml
         gridDisplayWidth
         gridDisplayWidth
