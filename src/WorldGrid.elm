@@ -1,6 +1,6 @@
 module WorldGrid exposing
     ( State(..)
-    , changeFractionOfResources
+    , changeFractionOfGivenState
     , emptyGrid
     , filterVacant
     , indicesOfCellsOfGivenState
@@ -97,8 +97,8 @@ indicesOfCellsOfGivenState targetState (CellGrid ( nRows, nCols ) cells) =
         |> Array.toList
 
 
-changeFractionOfResources : Float -> Float -> State -> State -> CellGrid State -> ( Int, CellGrid State )
-changeFractionOfResources seed p sourceState targetState ((CellGrid ( nRows, nCols ) cells) as grid) =
+changeFractionOfGivenState : Float -> Float -> State -> State -> CellGrid State -> ( Int, CellGrid State )
+changeFractionOfGivenState seed p sourceState targetState ((CellGrid ( nRows, nCols ) cells) as grid) =
     let
         matrixIndices =
             indicesOfCellsOfGivenState sourceState grid

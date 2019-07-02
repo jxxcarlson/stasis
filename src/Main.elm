@@ -38,6 +38,18 @@ type alias Model =
     }
 
 
+type alias GameParameters =
+    { probabilityOfDisaster : Float
+    , co2OffsetThreshold : Int
+    }
+
+
+gameParameters =
+    { probabilityOfDisaster = 0.1
+    , co2OffsetThreshold = -5
+    }
+
+
 gridDisplayWidth =
     550.0
 
@@ -72,6 +84,7 @@ type Msg
     | ChooseNature
     | ChooseUnoccupied
     | NewRandomFloat Float
+    | NewRandomFloat2 Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -79,7 +92,7 @@ update msg model =
     case msg of
         ChangeTheWorld ->
             ( stageWorldChange model
-            , Random.generate NewRandomFloat (Random.float 0 1)
+            , Random.generate NewRandomFloat2 (Random.float 0 1)
             )
 
         StageResource newResource ->
@@ -161,6 +174,48 @@ update msg model =
 
         NewRandomFloat p ->
             ( { model | randomFloat = p }, Cmd.none )
+
+        NewRandomFloat2 p ->
+            let
+                s =
+                    World.score model.world
+
+                pd =
+                    if s.co2Offset < gameParameters.co2OffsetThreshold then
+                        gameParameters.probabilityOfDisaster
+
+                    else
+                        3 * gameParameters.probabilityOfDisaster
+
+                ( deltaCrop, newCellGrid ) =
+                    if p < pd then
+                        WorldGrid.changeFractionOfGivenState p 0.2 (Occupied Crop) Unoccupied model.cellGrid
+
+                    else
+                        ( 0, model.cellGrid )
+
+                stagedResource =
+                    model.stagedWorldChange
+
+                newStagedWorldChange =
+                    { stagedResource | crops = stagedResource.crops - deltaCrop }
+
+                disasterMessage =
+                    if deltaCrop > 0 then
+                        "Sad: you have lost " ++ String.fromInt deltaCrop ++ "units of cropland"
+
+                    else
+                        ""
+            in
+            ( { model
+                | cellGrid = newCellGrid
+                , stagedWorldChange = newStagedWorldChange
+                , randomFloat = p
+
+                -- , message = disasterMessage
+              }
+            , Cmd.none
+            )
 
 
 stageWorldChange : Model -> Model
