@@ -1,5 +1,6 @@
 module WorldGrid exposing
     ( State(..)
+    , changeFractionOfResources
     , emptyGrid
     , filterVacant
     , indicesOfCellsOfResourceType
@@ -94,6 +95,35 @@ indicesOfCellsOfResourceType resource (CellGrid ( nRows, nCols ) cells) =
         |> Array.indexedMap (\k state -> ( k, state ))
         |> Array.filter (\( k, state ) -> state == Occupied resource)
         |> Array.toList
+
+
+changeFractionOfResources : Float -> Float -> Resource -> Resource -> CellGrid State -> ( Int, CellGrid State )
+changeFractionOfResources seed p sourceResource targetResource ((CellGrid ( nRows, nCols ) cells) as grid) =
+    let
+        matrixIndices =
+            indicesOfCellsOfResourceType sourceResource grid
+                |> List.map Tuple.first
+                |> List.map (CellGrid.matrixIndex ( nRows, nCols ))
+
+        chosenMatrixIndices =
+            Utility.chooseRandomSubList seed p matrixIndices
+
+        nChosen =
+            List.length chosenMatrixIndices
+
+        isChosenMatrixIndex : ( Int, Int ) -> Bool
+        isChosenMatrixIndex ( i, j ) =
+            List.member ( i, j ) chosenMatrixIndices
+
+        mapper : ( Int, Int ) -> State -> State
+        mapper ( i, j ) state =
+            if isChosenMatrixIndex ( i, j ) then
+                Occupied targetResource
+
+            else
+                state
+    in
+    ( nChosen, CellGrid.mapWithIndex mapper grid )
 
 
 matrixIndicesOfSameResource : Resource -> CellGrid.CellGrid State -> List ( Int, Int )

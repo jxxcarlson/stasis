@@ -360,10 +360,3 @@ cellrenderer =
     , gridLineWidth = 0.5
     , gridLineColor = Color.rgb 0 0 1
     }
-
-
-
---
--- cellsOfResourceType : Resource -> CellGrid Resource -> Array ( Int, Int )
--- cellsOfResourceType resource cellGrid =
---

@@ -1,4 +1,4 @@
-module Utility exposing (getListElement, uniquefyList)
+module Utility exposing (chooseRandomSubList, getListElement, uniquefyList)
 
 
 getListElement : Int -> List a -> Maybe a
@@ -19,3 +19,15 @@ uniquefyList list =
                     acc
             )
             []
+
+
+chooseRandomSubList : Float -> Float -> List a -> List a
+chooseRandomSubList seed p list =
+    let
+        m =
+            List.length list |> toFloat
+
+        n =
+            round (p * m)
+    in
+    List.take n list
