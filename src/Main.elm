@@ -253,7 +253,7 @@ update msg model =
                         ""
             in
             ( { model
-                | cellGrid = newCellGrid
+                | cellGrid = newCellGrid2
                 , stagedWorldChange = newStagedWorldChange
                 , randomFloat = p
                 , message = disasterMessage
