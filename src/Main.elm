@@ -115,8 +115,11 @@ update msg model =
             let
                 newModel =
                     stageWorldChange model
+
+                co2Offset =
+                    (World.score model.world).co2Offset
             in
-            ( { newModel | message = "", message2 = "" }
+            ( { newModel | message = co2Message co2Offset, message2 = "" }
             , Random.generate NewRandomFloat2 (Random.float 0 1)
             )
 
@@ -334,7 +337,7 @@ view model =
             , div
                 [ Html.Attributes.style "font-size" "24px"
                 , Html.Attributes.style "margin-top" "20px"
-                , Html.Attributes.style "font-color" "red"
+                , Html.Attributes.style "color" "red"
                 ]
                 [ text <| model.message2 ]
             ]
@@ -488,3 +491,18 @@ cellrenderer =
     , gridLineWidth = 0.5
     , gridLineColor = Color.rgb 0 0 1
     }
+
+
+co2Message : Int -> String
+co2Message co2Offset =
+    if co2Offset < -10 then
+        "CO2 levels very high: extreme danger."
+
+    else if co2Offset < 0 then
+        "CO2 leve;s high: take remedial action immediately"
+
+    else if co2Offset < -5 then
+        "CO2 levels high"
+
+    else
+        "CO2 levels better ... keep working on it!"
