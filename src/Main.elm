@@ -13,6 +13,7 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, string)
 import Random
+import Utility
 import World exposing (Resource(..), World, WorldChange)
 import WorldGrid exposing (State(..))
 
@@ -44,13 +45,11 @@ type alias Model =
 
 type alias GameParameters =
     { probabilityOfDisaster : Float
-    , co2OffsetThreshold : Int
     }
 
 
 gameParameters =
-    { probabilityOfDisaster = 0.06
-    , co2OffsetThreshold = -5
+    { probabilityOfDisaster = 0.2
     }
 
 
@@ -71,7 +70,10 @@ init _ =
             }
       , world =
             World.init
-      , cellGrid = WorldGrid.emptyGrid gridWidth gridWidth
+      , cellGrid =
+            WorldGrid.emptyGrid gridWidth gridWidth
+                |> WorldGrid.setRandomCell 0.2 (Occupied City)
+                |> WorldGrid.setRandomCell 0.8 (Occupied Crop)
       , selectedState = Occupied Crop
       , randomFloat = 0.0
       , message = "Game starting.  Try to make CO2 offsets larger (now at -2)."
@@ -209,7 +211,7 @@ update msg model =
                     World.score model.world
 
                 pd =
-                    probabilityFactor s.co2Offset
+                    adjustProbability s.co2Offset gameParameters.probabilityOfDisaster
 
                 ( deltaCrop, newCellGrid ) =
                     if p < pd then
@@ -233,7 +235,7 @@ update msg model =
                     toFloat excessCities / toFloat numberOfCities
 
                 ( deltaCities, newCellGrid2 ) =
-                    WorldGrid.changeFractionOfGivenState p fractionalExcessCites (Occupied City) Unoccupied model.cellGrid
+                    WorldGrid.changeFractionOfGivenState p fractionalExcessCites (Occupied City) Unoccupied newCellGrid
 
                 stagedResource =
                     model.stagedWorldChange
@@ -264,6 +266,11 @@ update msg model =
               }
             , Cmd.none
             )
+
+
+adjustProbability : Int -> Float -> Float
+adjustProbability co2Offset p =
+    probabilityFactor co2Offset * p |> clamp 0 1
 
 
 probabilityFactor : Int -> Float
@@ -340,8 +347,29 @@ view model =
                 , Html.Attributes.style "color" "red"
                 ]
                 [ text <| model.message2 ]
+            , disasterProbabilityView model
             ]
         ]
+
+
+disasterProbabilityView : Model -> Html Msg
+disasterProbabilityView model =
+    let
+        s =
+            World.score model.world
+
+        p =
+            adjustProbability s.co2Offset gameParameters.probabilityOfDisaster
+                |> Utility.roundTo 3
+
+        r =
+            model.randomFloat |> Utility.roundTo 3
+    in
+    div
+        [ Html.Attributes.style "font-size" "24px"
+        , Html.Attributes.style "margin-top" "20px"
+        ]
+        [ text <| "p = " ++ String.fromFloat p ++ ", r = " ++ String.fromFloat r ]
 
 
 turnView : World -> Html msg

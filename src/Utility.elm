@@ -1,4 +1,4 @@
-module Utility exposing (chooseRandomSubList, getListElement, uniquefyList)
+module Utility exposing (chooseRandomSubList, getListElement, roundTo, uniquefyList)
 
 
 getListElement : Int -> List a -> Maybe a
@@ -31,3 +31,12 @@ chooseRandomSubList seed p list =
             round (p * m)
     in
     List.take n list
+
+
+roundTo : Int -> Float -> Float
+roundTo places x =
+    let
+        f =
+            10 ^ places |> toFloat
+    in
+    toFloat (round (f * x)) / f
