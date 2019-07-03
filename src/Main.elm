@@ -1,5 +1,7 @@
 module Main exposing (main)
 
+-- import TypedSvg.Types
+
 import Array
 import Browser
 import CellGrid exposing (CellGrid)
@@ -36,6 +38,7 @@ type alias Model =
     , selectedState : State
     , randomFloat : Float
     , message : String
+    , message2 : String
     }
 
 
@@ -72,6 +75,7 @@ init _ =
       , selectedState = Occupied Crop
       , randomFloat = 0.0
       , message = "Game starting.  Try to make CO2 offsets larger (now at -2)."
+      , message2 = ""
       }
     , Random.generate NewRandomFloat (Random.float 0 1)
     )
@@ -112,7 +116,7 @@ update msg model =
                 newModel =
                     stageWorldChange model
             in
-            ( { newModel | message = "" }
+            ( { newModel | message = "", message2 = "" }
             , Random.generate NewRandomFloat2 (Random.float 0 1)
             )
 
@@ -211,15 +215,39 @@ update msg model =
                     else
                         ( 0, model.cellGrid )
 
+                numberOfCropAreas =
+                    WorldGrid.indicesOfCellsOfGivenState (Occupied Crop) newCellGrid
+                        |> List.length
+
+                numberOfCities =
+                    WorldGrid.indicesOfCellsOfGivenState (Occupied City) newCellGrid
+                        |> List.length
+
+                excessCities =
+                    numberOfCities - numberOfCropAreas
+
+                fractionalExcessCites =
+                    toFloat excessCities / toFloat numberOfCities
+
+                ( deltaCities, newCellGrid2 ) =
+                    WorldGrid.changeFractionOfGivenState p fractionalExcessCites (Occupied City) Unoccupied model.cellGrid
+
                 stagedResource =
                     model.stagedWorldChange
 
                 newStagedWorldChange =
-                    { stagedResource | crops = stagedResource.crops - deltaCrop }
+                    { stagedResource | crops = stagedResource.crops - deltaCrop, cities = stagedResource.cities - deltaCities }
 
                 disasterMessage =
                     if deltaCrop > 0 then
-                        "Environment is stressed! You have lost " ++ String.fromInt deltaCrop ++ " units of cropland"
+                        "Environment under stress! You have lost " ++ String.fromInt deltaCrop ++ " units of cropland"
+
+                    else
+                        ""
+
+                disasterMessage2 =
+                    if deltaCities > 0 then
+                        "Mayday, Mayday! we have lost " ++ String.fromInt deltaCities ++ " cities"
 
                     else
                         ""
@@ -229,6 +257,7 @@ update msg model =
                 , stagedWorldChange = newStagedWorldChange
                 , randomFloat = p
                 , message = disasterMessage
+                , message2 = disasterMessage2
               }
             , Cmd.none
             )
@@ -293,6 +322,8 @@ view model =
             , div
                 [ style "font-size" "24px"
                 , Html.Attributes.style "margin-top" "20px"
+                , style "width" "200px"
+                , style "word-wrap" "break-word"
                 ]
                 [ text <| fundsAvailableMessage model ]
             , div
@@ -300,6 +331,12 @@ view model =
                 , Html.Attributes.style "margin-top" "20px"
                 ]
                 [ text <| model.message ]
+            , div
+                [ Html.Attributes.style "font-size" "24px"
+                , Html.Attributes.style "margin-top" "20px"
+                , Html.Attributes.style "font-color" "red"
+                ]
+                [ text <| model.message2 ]
             ]
         ]
 
