@@ -46,7 +46,7 @@ type alias GameParameters =
 
 
 gameParameters =
-    { probabilityOfDisaster = 0.133
+    { probabilityOfDisaster = 0.06
     , co2OffsetThreshold = -5
     }
 
@@ -202,11 +202,7 @@ update msg model =
                     World.score model.world
 
                 pd =
-                    if s.co2Offset < gameParameters.co2OffsetThreshold then
-                        gameParameters.probabilityOfDisaster
-
-                    else
-                        3 * gameParameters.probabilityOfDisaster
+                    probabilityFactor s.co2Offset
 
                 ( deltaCrop, newCellGrid ) =
                     if p < pd then
@@ -236,6 +232,19 @@ update msg model =
               }
             , Cmd.none
             )
+
+
+probabilityFactor : Int -> Float
+probabilityFactor co2offset =
+    let
+        c =
+            co2offset |> toFloat
+    in
+    if c > 0 then
+        1 / (1 + c / 10)
+
+    else
+        1 - c / 10
 
 
 stageWorldChange : Model -> Model
